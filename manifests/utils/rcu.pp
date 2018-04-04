@@ -52,16 +52,19 @@ define orawls::utils::rcu(
     }
   }
 
-  if $rcu_temp_tablespace == undef {
-    $rcu_temp_tablespace_cmd  = ''
-  } else {
-    $rcu_temp_tablespace_cmd  = "-tempTablespace ${rcu_temp_tablespace}"
-  }
-  if $rcu_tablespace == undef {
-    $rcu_tablespace_cmd  = ''
-  } else {
-    $rcu_tablespace_cmd  = "-tablespace ${rcu_tablespace}"
-  }
+#  if $rcu_temp_tablespace == undef {
+#    $rcu_temp_tablespace_cmd  = ''
+#  } else {
+#    $rcu_temp_tablespace_cmd  = "-tempTablespace ${rcu_temp_tablespace}"
+#  }
+#  if $rcu_tablespace == undef {
+#    $rcu_tablespace_cmd  = ''
+#  } else {
+#    $rcu_tablespace_cmd  = "-tablespace ${rcu_tablespace}"
+#  }
+
+  $rcu_temp_tablespace_cmd  = ''
+  $rcu_tablespace_cmd  = ''
 
   if $fmw_product == 'adf' {
     if $version >= 1221 {
@@ -75,7 +78,8 @@ define orawls::utils::rcu(
   }
   elsif $fmw_product == 'soa' {
     if $version >= 1221 {
-      $components = "-component MDS ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component IAU ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component IAU_APPEND ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component IAU_VIEWER ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component OPSS ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component WLS ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component STB ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component UCSUMS ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component ESS ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd} -component SOAINFRA ${rcu_temp_tablespace_cmd} ${rcu_tablespace_cmd}"
+      $soacomponents = ["SOAINFRA","UCSUMS","MDS","WLS","STB","OPSS","IAU","IAU_APPEND","IAU_VIEWER"]
+      $components = inline_template('<%= @soacomponents.map{|c| "-component #{c}" }.join(' ') -%>')
       $componentsPasswords = [$rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password]
     }
     else {

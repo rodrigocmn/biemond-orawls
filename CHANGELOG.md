@@ -1,5 +1,8 @@
 # History
 
+# fiddyspence changes:
+- Allow headless rcu to create default tablespaces
+
 ## 2.0.15
 - fix CdiContainer on wls_domain when used on a < 12.2 domain
 
