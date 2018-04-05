@@ -79,7 +79,7 @@ define orawls::utils::rcu(
   elsif $fmw_product == 'soa' {
     if $version >= 1221 {
       $soacomponents = ["SOAINFRA","UCSUMS","MDS","WLS","STB","OPSS","IAU","IAU_APPEND","IAU_VIEWER"]
-      $components = inline_template('<%= @soacomponents.map{|c| "-component #{c}" }.join(' ') -%>')
+      $components = inline_template('<%= @soacomponents.map{|c| "-component #{c}" }.join(" ") -%>')
       $componentsPasswords = [$rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password, $rcu_password]
     }
     else {
