@@ -39,6 +39,21 @@ def create_machine(machine_type, name, address, nodemanager_secure_listener):
 
     set('ListenAddress', address)
 
+def create_machine_with_port(machine_type, name, address, nodemanager_secure_listener, port):
+    cd('/')
+    create(name, machine_type)
+    cd(machine_type + '/' + name)
+    create(name, 'NodeManager')
+    cd('NodeManager/' + name)
+
+    if nodemanager_secure_listener == True:
+        set('NMType', 'SSL')
+    else:
+        set('NMType', 'Plain')
+
+    set('ListenAddress', address)
+    set('ListenPort', port)
+
 
 def change_datasource(datasource, username, password, db_url):
     print 'Change datasource ' + datasource

@@ -602,6 +602,7 @@ define orawls::domain (
                     'templateCoherence'                     => $templateCoherence,
                     'nodemanager_username'                  => $nodemanager_username,
                     'nodemanager_password'                  => $nodemanager_password,
+                    'nodemanager_port'                      => $nodemanager_port,
                     'adminserver_address'                   => $adminserver_address,
                     'adminserver_port'                      => $adminserver_port,
                     'ohs_standalone_listen_address'         => $ohs_standalone_listen_address,
