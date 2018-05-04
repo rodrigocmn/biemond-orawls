@@ -100,7 +100,7 @@ change_log('domain', DOMAIN, '<%= $admin_nodemanager_log_dir %>')
 
 print('Create machine <%= $adminserver_machine_name %> with type UnixMachine')
 <% if $nodemanager_port { %>
-create_machine_with_port('UnixMachine', '<%= $adminserver_machine_name %>', '<%= $adminserver_address %>', NODEMANAGER_SECURE_LISTENER, '<%= $nodemanager_port %>')
+create_machine_with_port('UnixMachine', '<%= $adminserver_machine_name %>', '<%= $adminserver_address %>', NODEMANAGER_SECURE_LISTENER, <%= $nodemanager_port %>)
 <% } else { %>
 create_machine_port('UnixMachine', '<%= $adminserver_machine_name %>', '<%= $adminserver_address %>', NODEMANAGER_SECURE_LISTENER)
 <% } %>
