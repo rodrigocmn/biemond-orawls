@@ -1,5 +1,7 @@
 [Unit]
 Description=Node manager for <%= @name %>
+Wants=sshd.service local-fs.target network.target
+WantedBy=default.target
 
 [Service]
 TimeoutSec=1800
@@ -15,6 +17,3 @@ Group=<%= @os_group %>
 
 Type=simple
 
-[Install]
-WantedBy=default.target
-Wants=sshd.service,local-fs.target,network.target
