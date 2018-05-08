@@ -107,7 +107,7 @@ define orawls::nodemanager (
           owner   => $os_user,
           group   => $os_group,
           require => Exec["create ${log_dir} directory"],
-          before  => Exec["startNodemanager ${title}"],
+          before  => Service["nodemanager_${name}"],
         }
       }
       $nodeMgrLogDir = "${log_dir}/${log_file}"
@@ -149,10 +149,6 @@ define orawls::nodemanager (
     default: {
       fail("Unrecognized operating system ${::kernel}, please use it on a Linux or Solaris host")
     }
-  }
-
-  Exec {
-    logoutput => $log_output,
   }
 
   # do it once but don't replace it because of encrypted trust passwords
@@ -225,7 +221,7 @@ define orawls::nodemanager (
       owner   => $os_user,
       group   => $os_group,
       mode    => lookup('orawls::permissions_group_restricted'),
-      before  => Exec["startNodemanager ${title}"],
+      before  => Service["nodemanager_${name}"],
     }
   } else {
     if $version >= 1221 {
@@ -257,7 +253,7 @@ define orawls::nodemanager (
       owner   => $os_user,
       group   => $os_group,
       mode    => lookup('orawls::permissions_group_restricted'),
-      before  => Exec["startNodemanager ${title}"],
+      before  => Service["nodemanager_${name}"],
     }
   }
 
@@ -285,36 +281,40 @@ define orawls::nodemanager (
     mode   => '0755',
     content => template('orawls/nodemanagersystemd.erb'),
   }
-
-  exec { "startNodemanager ${title}":
-    command     => $startCommand,
-    environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
-    unless      => $checkCommand,
-    path        => $exec_path,
-    user        => $os_user,
-    group       => $os_group,
-    cwd         => $nodeMgrHome,
+  service { "nodemanager_${name}":
+    ensure => running,
+    enable => true,
   }
 
-  exec {"restart NodeManager ${title}":
-    command     => $restartCommand,
-    environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
-    onlyif      => $checkCommand,
-    path        => $exec_path,
-    user        => $os_user,
-    group       => $os_group,
-    cwd         => $nodeMgrHome,
-    refreshonly => true,
-    subscribe   => File[$propertiesFileTitle],
-  }
-
-  # using fiddyspence/sleep module
-  sleep { "wake up ${title}":
-    bedtime       => $sleep,
-    wakeupfor     => $netstat_statement,
-    dozetime      => 2,
-    failontimeout => true,
-    subscribe     => [Exec["startNodemanager ${title}"], Exec["restart NodeManager ${title}"]],
-    refreshonly   => true,
-  }
+#  exec { "startNodemanager ${title}":
+#    command     => $startCommand,
+#    environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
+#    unless      => $checkCommand,
+#    path        => $exec_path,
+#    user        => $os_user,
+#    group       => $os_group,
+#    cwd         => $nodeMgrHome,
+#  }
+#
+#  exec {"restart NodeManager ${title}":
+#    command     => $restartCommand,
+#    environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
+#    onlyif      => $checkCommand,
+#    path        => $exec_path,
+#    user        => $os_user,
+#    group       => $os_group,
+#    cwd         => $nodeMgrHome,
+#    refreshonly => true,
+#    subscribe   => File[$propertiesFileTitle],
+#  }
+#
+#  # using fiddyspence/sleep module
+#  sleep { "wake up ${title}":
+#    bedtime       => $sleep,
+#    wakeupfor     => $netstat_statement,
+#    dozetime      => 2,
+#    failontimeout => true,
+#    subscribe     => [Exec["startNodemanager ${title}"], Exec["restart NodeManager ${title}"]],
+#    refreshonly   => true,
+#  }
 }
