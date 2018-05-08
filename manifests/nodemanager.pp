@@ -66,6 +66,8 @@ define orawls::nodemanager (
 )
 {
 
+  include orawls::systemd
+
   if ( $wls_domains_dir == undef or $wls_domains_dir == '' ) {
     $domains_dir = "${middleware_home_dir}/user_projects/domains"
   } else {
@@ -275,13 +277,14 @@ define orawls::nodemanager (
   $systemdenv        = [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ]
 
   file { "/etc/systemd/system/nodemanager_${name}.service":
-    ensure => file,
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0755',
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0755',
     content => template('orawls/nodemanagersystemd.erb'),
+    notify  => Class['orawls::systemd'],
   }
-  service { "nodemanager_${name}":
+  ~> service { "nodemanager_${name}":
     ensure => running,
     enable => true,
   }
