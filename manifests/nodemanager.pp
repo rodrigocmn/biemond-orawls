@@ -274,7 +274,17 @@ define orawls::nodemanager (
   }
 
   $startCommand      = "nohup ${startHome}/startNodeManager.sh  > ${nodeMgrHome}/nodemanager_nohup.log 2>&1 &"
+  $systemdCommand    = "${startHome}/startNodeManager.sh"
   $restartCommand    = "kill $(${checkCommand} | awk '{print \$1}'); sleep 1; ${startCommand}"
+  $systemdenv        = [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ]
+
+  file { "/etc/systemd/system/nodemanager_${name}":
+    ensure => file,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
+    content => template('orawls/nodemanagersystemd.erb'),
+  }
 
   exec { "startNodemanager ${title}":
     command     => $startCommand,

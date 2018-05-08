@@ -1,0 +1,20 @@
+[Unit]
+Description=Node manager for <%= @name %>
+
+[Service]
+PermissionsStartOnly=true
+<% @systemdenv.each do |env| -%>
+<% env.split(' ').each do |entry| -%>
+Environment=<%= entry %>
+<% end -%>
+<% end -%>
+ExecStart=<%= @systemdCommand %>
+
+ExecStartPost=/bin/bash -c "while : ; do /bin/netstat -lnt | /bin/grep ':<%= @nodemanager_port %>' && break; sleep 5; done"
+User=<%= @os_user %>
+Group=<%= @os_group %>
+
+Type=simple
+
+[Install]
+WantedBy=default.target
