@@ -5,9 +5,7 @@ Description=Node manager for <%= @name %>
 TimeoutSec=infinity
 PermissionsStartOnly=true
 <% @systemdenv.each do |env| -%>
-<% env.split(' ').each do |entry| -%>
-Environment=<%= entry %>
-<% end -%>
+Environment=<%= env %>
 <% end -%>
 ExecStart=<%= @systemdCommand %>
 
