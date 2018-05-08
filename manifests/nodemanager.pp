@@ -278,7 +278,7 @@ define orawls::nodemanager (
   $restartCommand    = "kill $(${checkCommand} | awk '{print \$1}'); sleep 1; ${startCommand}"
   $systemdenv        = [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ]
 
-  file { "/etc/systemd/system/nodemanager_${name}":
+  file { "/etc/systemd/system/nodemanager_${name}.service":
     ensure => file,
     owner  => 'root',
     group  => 'root',
