@@ -2,7 +2,7 @@
 Description=Node manager for <%= @name %>
 
 [Service]
-TimeoutSec=infinity
+TimeoutSec=0
 PermissionsStartOnly=true
 <% @systemdenv.each do |env| -%>
 Environment=<%= env %>
