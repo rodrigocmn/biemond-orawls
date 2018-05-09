@@ -48,8 +48,8 @@ Puppet::Type.type(:wls_directory_structure).provide(:wls_directory_structure) do
   end
 
   def allow_everybody(path)
-    Puppet.info "Setting public permissions 0777 for #{path}"
-    FileUtils.chmod 0777, path
+    Puppet.info "Setting public permissions 0775 for #{path}"
+    FileUtils.chmod 0775, path
   end
 
 end
