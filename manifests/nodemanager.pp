@@ -284,7 +284,7 @@ define orawls::nodemanager (
     content => template('orawls/nodemanagersystemd.erb'),
     notify  => Class['orawls::systemd'],
   }
-  ~> service { "nodemanager_${name}":
+  service { "nodemanager_${name}":
     ensure  => running,
     enable  => true,
     require => Class['orawls::systemd'],
