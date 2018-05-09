@@ -287,7 +287,6 @@ define orawls::nodemanager (
   service { "nodemanager_${name}":
     ensure  => running,
     enable  => true,
-    require => Class['orawls::systemd'],
   }
 
 #  exec { "startNodemanager ${title}":
