@@ -1,5 +1,8 @@
 # History
 
+# rodrigocmn changes:
+- Added suport to SysV
+
 # fiddyspence changes:
 - Allow headless rcu to create default tablespaces
 
