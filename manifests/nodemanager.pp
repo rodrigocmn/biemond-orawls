@@ -66,7 +66,8 @@ define orawls::nodemanager (
 )
 {
 
-  include orawls::systemd
+  #include orawls::systemd
+  include orawls::nodemanager_service
 
   if ( $wls_domains_dir == undef or $wls_domains_dir == '' ) {
     $domains_dir = "${middleware_home_dir}/user_projects/domains"
@@ -275,6 +276,7 @@ define orawls::nodemanager (
   $systemdCommand    = "${startHome}/startNodeManager.sh"
   $restartCommand    = "kill $(${checkCommand} | awk '{print \$1}'); sleep 1; ${startCommand}"
   $systemdenv        = [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ]
+
 
 
   service { "nodemanager_${name}":

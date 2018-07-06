@@ -1,4 +1,4 @@
-class nodemanager_service (
+class orawls::nodemanager_service (
 
 ) {
 
