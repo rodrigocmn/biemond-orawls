@@ -276,18 +276,12 @@ define orawls::nodemanager (
   $restartCommand    = "kill $(${checkCommand} | awk '{print \$1}'); sleep 1; ${startCommand}"
   $systemdenv        = [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ]
 
-  file { "/etc/systemd/system/nodemanager_${name}.service":
-    ensure  => file,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
-    content => template('orawls/nodemanagersystemd.erb'),
-    notify  => Class['orawls::systemd'],
-  }
+
   service { "nodemanager_${name}":
     ensure  => running,
     enable  => true,
   }
+
 
 #  exec { "startNodemanager ${title}":
 #    command     => $startCommand,
