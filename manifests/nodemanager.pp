@@ -68,7 +68,7 @@ define orawls::nodemanager (
 )
   {
 
-    #include orawls::systemd
+    #include orawls::nodemanager_service
 
     if ( $wls_domains_dir == undef or $wls_domains_dir == '' ) {
       $domains_dir = "${middleware_home_dir}/user_projects/domains"
@@ -278,87 +278,84 @@ define orawls::nodemanager (
     $systemdCommand    = "${startHome}/startNodeManager.sh"
     $systemdenv        = [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ]
 
-    if $configure_as_service {
-      # Identifies the Linux distribution and set respective init style
-      if $::operatingsystem == 'OracleLinux' {
-        if versioncmp($::operatingsystemrelease, '7.0') < 0 {
-          $init_style = 'sysv_redhat'
-        } else {
-          $init_style  = 'systemd'
-        }
-      } else {
-        $init_style = undef
-      }
-      # Configure Nodemanager as a service, based on the selected init style
-      case $init_style {
-        'systemd' : {
-          file { "/etc/systemd/system/nodemanager_${name}.service":
-            ensure  => file,
-            owner   => 'root',
-            group   => 'root',
-            mode    => '0755',
-            content => template('orawls/nodemanagersystemd.erb'),
-            #notify  => Class['orawls::systemd'],
-          }
-          -> exec { '/bin/systemctl daemon-reload':
-            refreshonly => true,
-          }
-          -> service { "nodemanager_${name}":
-            ensure  => running,
-            enable  => true,
-          }
 
-        }
-        'sysv_redhat': {
-          file { "/etc/init.d/nodemanager_${name}":
-            ensure  => file,
-            owner   => 'root',
-            group   => 'root',
-            mode    => '0755',
-            content => template('orawls/nodemanagersysv.erb'),
-          }
-          -> service { "nodemanager_${name}":
-            ensure => running,
-            enable => true,
-          }
-        }
-        default: {
-          fail("Init style not defined or not supported.")
-        }
+    # Identifies the Linux distribution and set respective init style
+    if $::operatingsystem == 'OracleLinux' {
+      if versioncmp($::operatingsystemrelease, '7.0') < 0 {
+        $init_style = 'sysv_redhat'
+      } else {
+        $init_style  = 'systemd'
       }
     } else {
+      $init_style = undef
+    }
+    # Configure Nodemanager as a service, based on the selected init style
+    case $init_style {
+      'systemd' : {
+        file { "/etc/systemd/system/nodemanager_${name}.service":
+          ensure  => file,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0755',
+          content => template('orawls/nodemanagersystemd.erb'),
+        }
+        -> exec { '/bin/systemctl daemon-reload':
+          refreshonly => true,
+        }
 
-      exec { "startNodemanager ${title}":
-        command     => $startCommand,
-        environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
-        unless      => $checkCommand,
-        path        => $exec_path,
-        user        => $os_user,
-        group       => $os_group,
-        cwd         => $nodeMgrHome,
       }
-
-      exec {"restart NodeManager ${title}":
-        command     => $restartCommand,
-        environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
-        onlyif      => $checkCommand,
-        path        => $exec_path,
-        user        => $os_user,
-        group       => $os_group,
-        cwd         => $nodeMgrHome,
-        refreshonly => true,
-        subscribe   => File[$propertiesFileTitle],
+      'sysv_redhat': {
+        file { "/etc/init.d/nodemanager_${name}":
+          ensure  => file,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0755',
+          content => template('orawls/nodemanagersysv.erb'),
+        }
       }
-
-      # using fiddyspence/sleep module
-      sleep { "wake up ${title}":
-        bedtime       => $sleep,
-        wakeupfor     => $netstat_statement,
-        dozetime      => 2,
-        failontimeout => true,
-        subscribe     => [Exec["startNodemanager ${title}"], Exec["restart NodeManager ${title}"]],
-        refreshonly   => true,
+      default: {
+        fail("Init style not defined or not supported.")
       }
     }
+
+    service { "nodemanager_${name}":
+      ensure => running,
+      enable => true,
+    }
+
+
+    # TODO - include non service configuration
+    # exec { "startNodemanager ${title}":
+    #   command     => $startCommand,
+    #   environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
+    #   unless      => $checkCommand,
+    #   path        => $exec_path,
+    #   user        => $os_user,
+    #   group       => $os_group,
+    #   cwd         => $nodeMgrHome,
+    # }
+    #
+    # exec {"restart NodeManager ${title}":
+    #   command     => $restartCommand,
+    #   environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
+    #   onlyif      => $checkCommand,
+    #   path        => $exec_path,
+    #   user        => $os_user,
+    #   group       => $os_group,
+    #   cwd         => $nodeMgrHome,
+    #   refreshonly => true,
+    #   subscribe   => File[$propertiesFileTitle],
+    # }
+    #
+    # # using fiddyspence/sleep module
+    # sleep { "wake up ${title}":
+    #   bedtime       => $sleep,
+    #   wakeupfor     => $netstat_statement,
+    #   dozetime      => 2,
+    #   failontimeout => true,
+    #   subscribe     => [Exec["startNodemanager ${title}"], Exec["restart NodeManager ${title}"]],
+    #   refreshonly   => true,
+    # }
+
 
   }
