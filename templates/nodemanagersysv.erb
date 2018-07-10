@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # chkconfig:   345 85 15
-# description: global (per host) Oracle Weblogic Node Manager service init script
+# description: per domain Oracle Weblogic Node Manager service init script
 
 ### BEGIN INIT INFO
 # Provides: <%= @name %>
@@ -11,23 +11,24 @@
 # Should-Stop:
 # Default-Start: 3 4 5
 # Default-Stop: 0 1 2 6
-# Short-Description: per host Oracle Weblogic Node Manager service
-# Description: Starts and stops per host Oracle Weblogic Node Manager
+# Short-Description: per domain Oracle Weblogic Node Manager service.
+# Description: Starts and stops per domain Oracle Weblogic Node Manager.
 ### END INIT INFO
 
 . /etc/rc.d/init.d/functions
 
 #### BEGIN CUSTOM ENV
-MW_HOME=/u03/oracle/middleware12c
-JAVA_HOME=/usr/java/jdk1.8.0_60/
-LD_LIBRARY_PATH=/u03/oracle/middleware12c/wlserver/server/native/linux/x86_64:/usr/lib:/lib:/usr/X11R6/lib
+DOMAIN_HOME="/u03/oracle/middleware12c/user_projects/domains/<%= @name %>"
+MW_HOME=<%= @middleware_home_dir %>
+JAVA_HOME=<%= @jdk_home_dir %>
+LD_LIBRARY_PATH=<%= @middleware_home_dir %>/wlserver/server/native/linux/x86_64:/usr/lib:/lib:/usr/X11R6/lib
 #### END CUSTOM ENV
 
-PROGRAM_START="$MW_HOME/wlserver/server/bin/startNodeManager.sh"
-NODEMANAGER_DIR="$MW_HOME/wlserver/../oracle_common/common/nodemanager"
+PROCESS_STRING="^.*$DOMAIN_HOME.*weblogic.NodeManager.*"
+PROGRAM_START="$DOMAIN_HOME/bin/startNodeManager.sh"
+NODEMANAGER_DIR=$DOMAIN_HOME/nodemanager
 NODEMANAGER_LOCKFILE="$NODEMANAGER_DIR/nodemanager.log.lck"
 OUT_FILE="$NODEMANAGER_DIR/nodemanager.out"
-PROCESS_STRING="^.*\-Dweblogic.RootDirectory=$NODEMANAGER_DIR.*weblogic.NodeManager.*"
 
 SERVICE_NAME=`/bin/basename $0`
 LOCKFILE="/var/lock/subsys/$SERVICE_NAME"
@@ -35,26 +36,18 @@ LOCKFILE="/var/lock/subsys/$SERVICE_NAME"
 RETVAL=0
 
 start() {
-        OLDPID=`ps -e -o pid,command:1000 | grep "$PROCESS_STRING" | grep -v " grep " | awk '{print $1}'`
+        OLDPID=`/usr/bin/pgrep -f $PROCESS_STRING`
         if [ ! -z "$OLDPID" ]; then
             echo "$SERVICE_NAME is already running (pid $OLDPID) !"
             echo
             exit
         fi
-
-        if [ ! -e "$NODEMANAGER_DIR" ]; then
-            echo "$NODEMANAGER_DIR does not exist. The per host Node Manager is not configured correctly."
-            echo "Please follow steps in Pre-Condition section before using this script."
-            echo
-            exit
-        fi
-
         echo -n $"Starting $SERVICE_NAME ... "
         echo "`date` Starting $SERVICE_NAME ... " > $OUT_FILE 2>&1
         export MW_HOME
-export JAVA_HOME
+        export JAVA_HOME
 export LD_LIBRARY_PATH
-  $PROGRAM_START >> $OUT_FILE 2>&1  &
+$PROGRAM_START >> $OUT_FILE 2>&1  &
 
         RETVAL=$?
         if [ $RETVAL -eq 0 ] ; then
@@ -85,7 +78,7 @@ wait_for() {
 
 stop() {
         echo -n $"Stopping $SERVICE_NAME ... "
-        OLDPID=`ps -e -o pid,command:1000 | grep "$PROCESS_STRING" | grep -v " grep " | awk '{print $1}'`
+        OLDPID=`/usr/bin/pgrep -f $PROCESS_STRING`
         if [ "$OLDPID" != "" ]; then
             echo -n "(pid $OLDPID) "
             /bin/kill -TERM $OLDPID
@@ -120,13 +113,12 @@ case "$1" in
         [ -f $LOCKFILE ] && restart
         ;;
   status)
-        OLDPID=`ps -e -o pid,command:1000 | grep "$PROCESS_STRING" |grep -v " grep " | awk '{print $1}'`
+        OLDPID=`/usr/bin/pgrep -f $PROCESS_STRING`
         if [ "$OLDPID" != "" ]; then
             /bin/echo "$SERVICE_NAME is running (pid: $OLDPID)"
         else
-            /bin/echo "$SERVICE_NAME is stopped"
+            status $SERVICE_NAME
         fi
-        echo
         RETVAL=$?
         ;;
   *)
