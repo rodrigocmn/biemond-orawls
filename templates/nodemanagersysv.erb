@@ -25,7 +25,7 @@ LD_LIBRARY_PATH=<%= @middleware_home_dir %>/wlserver/server/native/linux/x86_64:
 #### END CUSTOM ENV
 
 PROCESS_STRING="^.*$DOMAIN_HOME.*weblogic.NodeManager.*"
-PROGRAM_START="/bin/su <%= @os_user %>$DOMAIN_HOME/bin/startNodeManager.sh"
+PROGRAM_START="/bin/su <%= @os_user %> $DOMAIN_HOME/bin/startNodeManager.sh"
 NODEMANAGER_DIR=$DOMAIN_HOME/nodemanager
 NODEMANAGER_LOCKFILE="$NODEMANAGER_DIR/nodemanager.log.lck"
 OUT_FILE="$NODEMANAGER_DIR/nodemanager.out"
