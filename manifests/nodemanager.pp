@@ -64,7 +64,7 @@ define orawls::nodemanager (
   Hash $properties                                        = {},
   Boolean $ohs_standalone                                 = false,
   String $puppet_os_user                                  = 'root',
-  Optional[Boolean] $configure_as_service                 = false,
+  Optional[Boolean] $configure_as_service                 = true,
 )
   {
 

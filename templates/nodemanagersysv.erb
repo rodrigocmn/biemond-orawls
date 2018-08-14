@@ -18,7 +18,7 @@
 . /etc/rc.d/init.d/functions
 
 #### BEGIN CUSTOM ENV
-DOMAIN_HOME="/u03/oracle/middleware12c/user_projects/domains/<%= @name %>"
+DOMAIN_HOME="<%= @wls_domains_dir %>/<%= @name %>"
 MW_HOME=<%= @middleware_home_dir %>
 JAVA_HOME=<%= @jdk_home_dir %>
 LD_LIBRARY_PATH=<%= @middleware_home_dir %>/wlserver/server/native/linux/x86_64:/usr/lib:/lib:/usr/X11R6/lib
